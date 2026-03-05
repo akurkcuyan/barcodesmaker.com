@@ -144,10 +144,6 @@ function App() {
           </div>
         </section>
 
-        {/* Ad Placement: Top Responsive */}
-        <div className="container mx-auto px-6">
-          <AdPlacement type="horizontal" />
-        </div>
 
         {/* Main Tool Area */}
         <section id="tool-section" className="relative pb-32 mesh-bg overflow-hidden">
@@ -201,13 +197,6 @@ function App() {
                 </AnimatePresence>
               </ErrorBoundary>
 
-              {/* Ad Placement: Below Tools */}
-              <AdPlacement type="horizontal" className="my-12 opacity-80" />
-            </div>
-
-            {/* Sticky Sidebar Ad */}
-            <div className="hidden lg:block">
-              <AdPlacement type="sidebar" />
             </div>
           </div>
         </section>
