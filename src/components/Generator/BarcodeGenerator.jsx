@@ -1,32 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
 import bwipjs from 'bwip-js';
 import { jsPDF } from "jspdf";
-import { Download, Copy, RefreshCw, Layers, Settings, ChevronDown, Palette, Maximize, AlertCircle, Check, FileText, FileImage, FileCode, FileBox } from 'lucide-react';
+import { Download, Copy, RefreshCw, RotateCcw, Layers, Settings, ChevronDown, Palette, Maximize, AlertCircle, Check, FileText, FileImage, FileCode, FileBox } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const formats = [
-    { value: 'code128', label: 'Code 128' },
-    { value: 'gs1-128', label: 'GS1-128 (UCC/EAN-128)' },
-    { value: 'code39', label: 'Code 39' },
-    { value: 'code93', label: 'Code 93' },
-    { value: 'code11', label: 'Code 11' },
-    { value: 'ean13', label: 'EAN-13' },
-    { value: 'ean8', label: 'EAN-8' },
-    { value: 'upca', label: 'UPC-A' },
-    { value: 'upce', label: 'UPC-E' },
-    { value: 'ean2', label: 'UPC Extension 2 Digits' },
-    { value: 'ean5', label: 'UPC Extension 5 Digits' },
-    { value: 'isbn', label: 'ISBN' },
-    { value: 'issn', label: 'ISSN' },
-    { value: 'ismn', label: 'ISMN' },
-    { value: 'itf14', label: 'ITF-14 / EAN-14' },
-    { value: 'interleaved2of5', label: 'Interleaved 2 of 5' },
-    { value: 'code2of5', label: 'Standard 2 of 5' },
-    { value: 'mssi', label: 'MSI Plessey' },
-    { value: 'pharmacode', label: 'Pharmacode' },
-    { value: 'code32', label: 'Italian Pharmacode (Code 32)' },
-    { value: 'postnet', label: 'PostNet' },
-    { value: 'datamatrix', label: 'Data Matrix' },
-    { value: 'codabar', label: 'Codabar' },
+    { value: 'code128', label: 'Code 128', example: 'CODE-128-EX' },
+    { value: 'gs1-128', label: 'GS1-128 (UCC/EAN-128)', example: '(01)12345678901231' },
+    { value: 'code39', label: 'Code 39', example: 'CODE39' },
+    { value: 'code93', label: 'Code 93', example: 'CODE93' },
+    { value: 'code11', label: 'Code 11', example: '123-45' },
+    { value: 'ean13', label: 'EAN-13', example: '9780201379624' },
+    { value: 'ean8', label: 'EAN-8', example: '90311017' },
+    { value: 'upca', label: 'UPC-A', example: '012345678905' },
+    { value: 'upce', label: 'UPC-E', example: '01234565' },
+    { value: 'ean2', label: 'UPC Extension 2 Digits', example: '12' },
+    { value: 'ean5', label: 'UPC Extension 5 Digits', example: '12345' },
+    { value: 'isbn', label: 'ISBN', example: '978-3-16-148410-0' },
+    { value: 'issn', label: 'ISSN', example: '2049-3630' },
+    { value: 'ismn', label: 'ISMN', example: '979-0-2600-0043-8' },
+    { value: 'itf14', label: 'ITF-14 / EAN-14', example: '10012345678902' },
+    { value: 'interleaved2of5', label: 'Interleaved 2 of 5', example: '12345670' },
+    { value: 'code2of5', label: 'Standard 2 of 5', example: '1234567' },
+    { value: 'msi', label: 'MSI Plessey', example: '123456' },
+    { value: 'pharmacode', label: 'Pharmacode', example: '12345' },
+    { value: 'code32', label: 'Italian Pharmacode (Code 32)', example: '12345678' },
+    { value: 'postnet', label: 'PostNet', example: '123456789' },
+    { value: 'datamatrix', label: 'Data Matrix', example: 'Hello World' },
+    { value: 'codabar', label: 'Codabar', example: 'A123456A' },
 ];
 
 const downloadFormats = [
@@ -37,6 +38,7 @@ const downloadFormats = [
 ];
 
 export default function BarcodeGenerator() {
+    const { t } = useTranslation();
     const [data, setData] = useState('1234567890');
     const [format, setFormat] = useState('code128');
     const [fgColor, setFgColor] = useState('000000');
@@ -56,7 +58,7 @@ export default function BarcodeGenerator() {
 
     const generateBarcode = () => {
         if (!data) {
-            setError('Please enter some data');
+            setError(t('barcode.no_data'));
             return;
         }
         setError('');
@@ -73,7 +75,7 @@ export default function BarcodeGenerator() {
                 backgroundcolor: bgColor,
             });
         } catch (err) {
-            setError(`Invalid data for ${format.toUpperCase()}`);
+            setError(`${t('barcode.invalid_data')} ${format.toUpperCase()}`);
             const ctx = canvasRef.current.getContext('2d');
             ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         }
@@ -120,9 +122,7 @@ export default function BarcodeGenerator() {
                 console.error('SVG Generation Error:', err);
             }
         } else if (selectedDownloadFormat === 'eps') {
-            // EPS generation in browser is complex, normally bwip-js doesn't provide it in the web bundle easily
-            // We'll provide a friendly notification that vector SVG is best for AI/PS
-            alert("For AI/PS (Vector) editing, please use the SVG format which is fully compatible with professional design tools.");
+            alert(t('barcode.vector_alert'));
             setSelectedDownloadFormat('svg');
         }
     };
@@ -135,70 +135,105 @@ export default function BarcodeGenerator() {
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-            {/* Settings Side */}
-            <div className="glass-card p-8 md:p-10 space-y-8 animate-slideUp border-navy-800/40 bg-navy-800/30 overflow-hidden relative">
-                <div className="space-y-6">
-                    <div className="space-y-4">
-                        <label className="text-sm font-black text-navy-400 uppercase tracking-widest flex items-center gap-2">
-                            <Maximize size={16} className="text-cyber-blue" />
-                            Format Selection
-                        </label>
-                        <div className="relative group">
-                            <select
-                                value={format}
-                                onChange={(e) => setFormat(e.target.value)}
-                                className="input-field appearance-none cursor-pointer pr-12 focus:ring-2 focus:ring-cyber-blue/20"
-                            >
-                                {formats.map(f => <option key={f.value} value={f.value} className="bg-navy-900">{f.label}</option>)}
-                            </select>
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-navy-500 pointer-events-none group-hover:text-white transition-colors" size={20} />
+            {/* Left Side: Settings & Export */}
+            <div className="space-y-8">
+                <div className="glass-card p-8 md:p-10 space-y-8 animate-slideUp border-navy-800/40 bg-navy-800/30 overflow-hidden relative">
+                    <div className="space-y-6">
+                        <div className="space-y-4">
+                            <label className="text-sm font-black text-navy-400 uppercase tracking-widest flex items-center gap-2">
+                                <Maximize size={16} className="text-cyber-blue" />
+                                {t('barcode.format_selection')}
+                            </label>
+                            <div className="relative group">
+                                <select
+                                    value={format}
+                                    onChange={(e) => {
+                                        const nextFormat = e.target.value;
+                                        setFormat(nextFormat);
+                                        const example = formats.find(f => f.value === nextFormat)?.example;
+                                        if (example) setData(example);
+                                    }}
+                                    className="input-field appearance-none cursor-pointer pr-12 focus:ring-2 focus:ring-cyber-blue/20"
+                                >
+                                    {formats.map(f => <option key={f.value} value={f.value} className="bg-navy-900">{f.label}</option>)}
+                                </select>
+                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-navy-500 pointer-events-none group-hover:text-white transition-colors" size={20} />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="space-y-4">
-                        <label className="text-sm font-black text-navy-400 uppercase tracking-widest block">Barcode Contents</label>
-                        <div className="relative group">
-                            <textarea
-                                rows="3"
-                                value={data}
-                                onChange={(e) => setData(e.target.value)}
-                                className="input-field resize-none py-4 pr-12 group-focus:border-cyber-blue"
-                                placeholder="Enter values to encode..."
-                            />
+                        <div className="space-y-4">
+                            <label className="text-sm font-black text-navy-400 uppercase tracking-widest block">{t('barcode.contents')}</label>
+                            <div className="relative group">
+                                <textarea
+                                    rows="3"
+                                    value={data}
+                                    onChange={(e) => setData(e.target.value)}
+                                    className="input-field resize-none py-4 pr-12 group-focus:border-cyber-blue"
+                                    placeholder={t('barcode.placeholder')}
+                                />
+                                <button
+                                    onClick={() => setData(formats.find(f => f.value === format)?.example || Math.floor(Math.random() * 1000000000).toString())}
+                                    className="absolute right-4 top-4 text-navy-400 hover:text-navy-900 dark:hover:text-white transition-colors"
+                                    title={t('barcode.example')}
+                                >
+                                    <RefreshCw size={20} />
+                                </button>
+                            </div>
+                            <div className="flex justify-between items-start mt-2">
+                                {error ? (
+                                    <p className="text-red-500 text-xs font-bold animate-pulse flex items-center gap-2">
+                                        <AlertCircle size={14} />
+                                        {error}
+                                    </p>
+                                ) : (
+                                    <p className="text-navy-500 text-xs font-semibold flex items-center gap-2">
+                                        <Check size={14} className="text-green-500" /> {t('barcode.format_ready')}
+                                    </p>
+                                )}
+                                <p className="text-[10px] text-navy-400 font-bold uppercase tracking-widest bg-navy-100 dark:bg-navy-900/50 px-2 py-1 rounded-md border border-navy-200 dark:border-navy-700">
+                                    {t('barcode.example')}: <span className="text-cyber-blue tracking-normal font-mono">{formats.find(f => f.value === format)?.example}</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="pt-2 flex items-center justify-between">
                             <button
-                                onClick={() => setData(Math.floor(Math.random() * 1000000000).toString())}
-                                className="absolute right-4 top-4 text-navy-400 hover:text-white transition-colors"
+                                onClick={() => setShowMore(!showMore)}
+                                className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-cyber-blue hover:text-white transition-all group"
                             >
-                                <RefreshCw size={20} />
+                                <Settings size={14} className={`transition-transform duration-500 ${showMore ? 'rotate-180' : ''}`} />
+                                {showMore ? t('barcode.less_options') : t('barcode.more_options')}
                             </button>
-                        </div>
-                        {error && <p className="text-red-400 text-xs font-bold animate-pulse flex items-center gap-2">
-                            <AlertCircle size={14} />
-                            {error}
-                        </p>}
-                    </div>
 
-                    <div className="pt-2">
-                        <button
-                            onClick={() => setShowMore(!showMore)}
-                            className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-cyber-blue hover:text-white transition-all group"
-                        >
-                            <Settings size={14} className={`transition-transform duration-500 ${showMore ? 'rotate-180' : ''}`} />
-                            {showMore ? 'Less Options' : 'More Customization'}
-                        </button>
+                            {showMore && (
+                                <button
+                                    onClick={() => {
+                                        setFgColor('000000');
+                                        setBgColor('ffffff');
+                                        setScale(3);
+                                        setHeight(15);
+                                    }}
+                                    className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-red-500/80 hover:text-red-500 transition-colors"
+                                    title="Reset to default"
+                                >
+                                    <RotateCcw size={12} />
+                                    {t('barcode.reset')}
+                                </button>
+                            )}
+                        </div>
 
                         {showMore && (
                             <div className="mt-8 space-y-8 animate-fadeIn">
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black text-navy-500 uppercase tracking-tighter">Bar Color</label>
+                                        <label className="text-[10px] font-black text-navy-500 uppercase tracking-tighter">{t('barcode.bar_color')}</label>
                                         <div className="flex items-center gap-2 bg-navy-900/50 p-2 rounded-xl border border-navy-800">
                                             <input type="color" value={`#${fgColor}`} onChange={(e) => setFgColor(e.target.value.replace('#', ''))} className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-none" />
                                             <span className="text-[10px] font-mono text-navy-400">{fgColor.toUpperCase()}</span>
                                         </div>
                                     </div>
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black text-navy-500 uppercase tracking-tighter">Background</label>
+                                        <label className="text-[10px] font-black text-navy-500 uppercase tracking-tighter">{t('barcode.background')}</label>
                                         <div className="flex items-center gap-2 bg-navy-900/50 p-2 rounded-xl border border-navy-800">
                                             <input type="color" value={`#${bgColor}`} onChange={(e) => setBgColor(e.target.value.replace('#', ''))} className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-none" />
                                             <span className="text-[10px] font-mono text-navy-400">{bgColor.toUpperCase()}</span>
@@ -208,11 +243,11 @@ export default function BarcodeGenerator() {
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black text-navy-500 uppercase tracking-tighter">Resolution (Scale): {scale}</label>
+                                        <label className="text-[10px] font-black text-navy-500 uppercase tracking-tighter">{t('barcode.resolution')}: {scale}</label>
                                         <input type="range" min="1" max="5" step="1" value={scale} onChange={(e) => setScale(parseInt(e.target.value))} className="w-full accent-cyber-blue h-1 bg-navy-900 rounded-full appearance-none cursor-pointer" />
                                     </div>
                                     <div className="space-y-3">
-                                        <label className="text-[10px] font-black text-navy-500 uppercase tracking-tighter">Bar Height: {height}</label>
+                                        <label className="text-[10px] font-black text-navy-500 uppercase tracking-tighter">{t('barcode.height')}: {height}</label>
                                         <input type="range" min="5" max="50" value={height} onChange={(e) => setHeight(parseInt(e.target.value))} className="w-full accent-cyber-blue h-1 bg-navy-900 rounded-full appearance-none cursor-pointer" />
                                     </div>
                                 </div>
@@ -221,31 +256,6 @@ export default function BarcodeGenerator() {
                     </div>
                 </div>
 
-                <div className="pt-10 space-y-6">
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-black text-navy-400 uppercase tracking-[0.2em] block text-center">Export Format</label>
-                        <div className="grid grid-cols-4 gap-3">
-                            {downloadFormats.map((f) => (
-                                <button
-                                    key={f.id}
-                                    onClick={() => setSelectedDownloadFormat(f.id)}
-                                    className={`p-3 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all duration-300 border-2 ${selectedDownloadFormat === f.id ? 'border-cyber-blue bg-cyber-blue/10 scale-105 shadow-lg shadow-cyber-blue/10' : 'border-navy-800 bg-navy-900/40 hover:border-navy-600'}`}
-                                >
-                                    <div className={`${f.color}`}>{f.icon}</div>
-                                    <span className="text-[10px] font-black uppercase tracking-tighter text-white">{f.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <button onClick={handleDownload} className="btn-primary w-full py-5 text-xl relative group overflow-hidden">
-                        <span className="relative z-10 flex items-center justify-center gap-3">
-                            <Download size={24} className="group-hover:translate-y-1 transition-transform" />
-                            Download {selectedDownloadFormat.toUpperCase()}
-                        </span>
-                        <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform"></div>
-                    </button>
-                </div>
             </div>
 
             {/* Preview Side */}
@@ -263,32 +273,42 @@ export default function BarcodeGenerator() {
                     <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-6 bg-navy-800 border border-navy-700 py-4 px-8 rounded-2xl shadow-2xl backdrop-blur-xl opacity-0 group-hover:opacity-100 group-hover:bottom-0 transition-all duration-500">
                         <div className="flex items-center gap-3">
                             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                            <span className="text-[10px] font-black text-white uppercase tracking-widest">{format.toUpperCase()} Engine Ready</span>
+                            <span className="text-[10px] font-black text-white uppercase tracking-widest">{format.toUpperCase()} {t('barcode.engine_ready')}</span>
                         </div>
                         <div className="w-px h-4 bg-navy-600"></div>
                         <button onClick={copyToClipboard} className="flex items-center gap-2 hover:text-cyber-blue transition-colors group/btn">
                             {isCopying ? <Check size={14} className="text-green-500" /> : <Copy size={14} className="group-hover/btn:scale-110" />}
-                            <span className="text-[10px] font-black uppercase tracking-widest">{isCopying ? 'Copied' : 'Copy Text'}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">{isCopying ? t('barcode.copied') : t('barcode.copy')}</span>
                         </button>
                     </div>
                 </div>
 
-                <div className="p-8 bg-gradient-to-br from-navy-800/40 to-navy-900/20 rounded-3xl border border-navy-800/60 backdrop-blur-sm group hover:border-cyber-blue/30 transition-all flex items-center justify-between">
-                    <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 bg-navy-900 border border-navy-700 rounded-2xl flex items-center justify-center text-cyber-blue group-hover:scale-110 transition-transform">
-                            <Layers size={28} />
-                        </div>
-                        <div>
-                            <div className="text-[10px] text-navy-500 font-black uppercase tracking-widest mb-1">Industrial Grade</div>
-                            <div className="text-base font-bold text-white leading-tight">High-Density Matrix Rendering</div>
+                <div className="pt-8 space-y-6">
+                    <div className="space-y-4">
+                        <label className="text-[10px] font-black text-navy-400 uppercase tracking-[0.2em] block text-center">{t('barcode.export_format')}</label>
+                        <div className="grid grid-cols-4 gap-3">
+                            {downloadFormats.map((f) => (
+                                <button
+                                    key={f.id}
+                                    onClick={() => setSelectedDownloadFormat(f.id)}
+                                    className={`p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all duration-300 border-2 ${selectedDownloadFormat === f.id ? 'border-cyber-blue bg-cyber-blue/10 scale-105 shadow-lg shadow-cyber-blue/10' : 'border-navy-800/50 bg-navy-900/40 hover:border-navy-600'}`}
+                                >
+                                    <div className={`${f.color}`}>{f.icon}</div>
+                                    <span className="text-[10px] font-black uppercase tracking-tighter text-white">{f.label}</span>
+                                </button>
+                            ))}
                         </div>
                     </div>
-                    <div className="text-[10px] font-black text-navy-500 uppercase flex flex-col items-end">
-                        <span>Format: {format}</span>
-                        <span>Chars: {data.length}</span>
-                    </div>
+
+                    <button onClick={handleDownload} className="btn-primary w-full py-5 text-xl relative group overflow-hidden">
+                        <span className="relative z-10 flex items-center justify-center gap-3">
+                            <Download size={24} className="group-hover:translate-y-1 transition-transform" />
+                            {t('barcode.download')} {selectedDownloadFormat.toUpperCase()}
+                        </span>
+                        <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                    </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

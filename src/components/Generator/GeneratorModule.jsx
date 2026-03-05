@@ -3,9 +3,11 @@ import BarcodeGenerator from './BarcodeGenerator';
 import QRCodeGenerator from './QRCodeGenerator';
 import { Barcode as BarcodeIcon, QrCode as QrIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function GeneratorModule() {
     const [activeTab, setActiveTab] = useState('barcode');
+    const { t } = useTranslation();
 
     return (
         <section id="generator" className="py-20 animate-fadeIn overflow-hidden">
@@ -19,14 +21,15 @@ export default function GeneratorModule() {
                     </p>
                 </div>
 
-                <div className="flex justify-center mb-12">
-                    <div className="bg-navy-800/50 p-1.5 rounded-full flex items-center gap-1 border border-navy-700 backdrop-blur-sm self-center shadow-xl">
+                {/* Tab switcher - centered, pushed down */}
+                <div className="flex justify-center mt-10 mb-14">
+                    <div className="bg-navy-800/50 p-1.5 rounded-full flex items-center gap-1 border border-navy-700 backdrop-blur-sm shadow-xl">
                         <button
                             onClick={() => setActiveTab('barcode')}
                             className={`tab-item flex items-center gap-2 ${activeTab === 'barcode' ? 'tab-item-active' : 'tab-item-inactive'}`}
                         >
                             <BarcodeIcon size={20} />
-                            <span>Barcode Maker</span>
+                            <span>{t('modes.generator')} — Barcode</span>
                         </button>
                         <button
                             onClick={() => setActiveTab('qrcode')}

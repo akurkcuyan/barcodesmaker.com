@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://barcodesmaker.com/sitemap.xml
+
+# Block access to development/config files
+Disallow: /src/
+Disallow: /.env
+Disallow: /node_modules/
