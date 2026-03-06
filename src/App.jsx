@@ -7,7 +7,6 @@ import ScannerModule from './components/Scanner/ScannerModule';
 import Footer from './components/Footer';
 import SEOContent from './components/SEOContent';
 import LegalModal from './components/LegalModal';
-import AdPlacement from './components/AdPlacement';
 import ErrorBoundary from './components/ErrorBoundary';
 import CookieBanner from './components/CookieBanner';
 import SplashScreen from './components/SplashScreen';
@@ -35,6 +34,21 @@ function App() {
     const splashTimer = setTimeout(() => setIsLoading(false), 1600);
     return () => clearTimeout(splashTimer);
   }, []);
+
+  // Dynamically load AdSense after SplashScreen to prevent policy violations
+  React.useEffect(() => {
+    if (!isLoading) {
+      try {
+        const script = document.createElement('script');
+        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6803867344365393";
+        script.async = true;
+        script.crossOrigin = "anonymous";
+        document.head.appendChild(script);
+      } catch (e) {
+        console.error("AdSense script injection failed:", e);
+      }
+    }
+  }, [isLoading]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';

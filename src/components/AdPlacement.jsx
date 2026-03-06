@@ -25,7 +25,7 @@ export default function AdPlacement({ type = 'horizontal', className = '', adSlo
                         width: '100%',
                         height: '100%'
                     }}
-                    data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" // Replace with your ID
+                    data-ad-client="ca-pub-6803867344365393"
                     data-ad-slot={adSlot}
                     data-ad-format="auto"
                     data-full-width-responsive="true"></ins>

@@ -1,10 +1,25 @@
 User-agent: *
 Allow: /
 
-# Sitemap location
+# Primary sitemap
 Sitemap: https://barcodesmaker.com/sitemap.xml
 
-# Block access to development/config files
+# Block access to development/build/config files
 Disallow: /src/
 Disallow: /.env
 Disallow: /node_modules/
+Disallow: /.git/
+
+# Allow key crawlers full access
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Respectful crawl delay for other bots
+User-agent: *
+Crawl-delay: 2

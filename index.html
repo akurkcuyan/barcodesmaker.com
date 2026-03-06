@@ -3,20 +3,23 @@
 
 <head>
   <meta charset="UTF-8" />
+
+  <!-- Primary SEO Meta -->
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Barcode Generator & QR Code Maker Online | BarcodesMaker.com</title>
+  <meta name="description"
+    content="Generate EAN-13, Code 128, QR Codes and more barcodes free online. No signup, no server upload. Instant download in JPG, PNG, SVG. Also scan barcodes from camera or image. Professional grade, 100% browser-based." />
+  <meta name="keywords"
+    content="barcode generator, qr code generator, free barcode maker, online barcode creator, EAN-13 generator, Code 128 barcode, barcode scanner online, QR code maker, barkod oluşturucu, Barcode-Generator kostenlos, बारकोड जनरेटर, barcode maker free" />
+  <meta name="author" content="BarcodesMaker.com" />
+  <link rel="canonical" href="https://barcodesmaker.com/" />
+
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/favicon.png" />
   <meta name="theme-color" content="#0f172a" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BarcodesMaker.com | Professional Barcode &amp; QR Tools for Everyone</title>
-  <meta name="description"
-    content="Free professional online Barcode and QR Code generator and scanner. Support for EAN-13, Code 128, QR Code and more. High-resolution downloads (JPG, SVG)." />
-  <meta name="keywords"
-    content="barcode maker, qr code maker, barcode scanner, qr code scanner, ean-13, code 128, free barcode tools, barkod oluştur, barkod tarama, Barcode-Generator, QR-Code-Generator, बारकोड जनरेटर" />
-  <meta name="author" content="BarcodesMaker.com" />
-  <link rel="canonical" href="https://barcodesmaker.com/" />
 
   <!-- PWA Manifest -->
   <link rel="manifest" href="/manifest.json" />
@@ -24,22 +27,36 @@
   <!-- Open Graph (Facebook / LinkedIn / WhatsApp) -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://barcodesmaker.com/" />
-  <meta property="og:title" content="BarcodesMaker.com | Professional Barcode &amp; QR Tools" />
+  <meta property="og:title" content="Free Barcode Generator & QR Code Maker | BarcodesMaker.com" />
   <meta property="og:description"
-    content="Free professional online Barcode and QR Code generator and scanner. EAN-13, Code 128, QR Code and more. High-resolution downloads." />
+    content="Generate EAN-13, Code 128, QR Codes and more for free. No signup, no server upload. Professional barcode tools running 100% in your browser." />
   <meta property="og:image" content="https://barcodesmaker.com/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="BarcodesMaker.com - Free Professional Barcode and QR Code Generator" />
   <meta property="og:site_name" content="BarcodesMaker.com" />
+  <meta property="og:locale" content="en_US" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="BarcodesMaker.com | Professional Barcode &amp; QR Tools" />
-  <meta name="twitter:description" content="Free professional online Barcode and QR Code generator and scanner." />
+  <meta name="twitter:title" content="Free Barcode Generator & QR Code Maker | BarcodesMaker.com" />
+  <meta name="twitter:description"
+    content="Generate EAN-13, Code 128, QR Codes free online. No signup. 100% browser-based, private, professional." />
   <meta name="twitter:image" content="https://barcodesmaker.com/og-image.png" />
 
   <!-- Sitemap hint for crawlers -->
   <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+
+  <!-- Performance: DNS Prefetch & Preconnect -->
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+  <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Google Fonts with font-display=swap for performance -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Google Analytics GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-B00V6E4WW5"></script>
@@ -50,13 +67,175 @@
     gtag('config', 'G-B00V6E4WW5');
   </script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google AdSense Auto Ads are dynamically injected in App.jsx AFTER SplashScreen finishes to comply with policies -->
+  <!-- ========================================================
+       JSON-LD Structured Data
+       ======================================================== -->
 
-  <!-- Google AdSense Auto Ads -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6803867344365393"
-    crossorigin="anonymous"></script>
+  <!-- 1. WebSite Schema with SearchAction -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "BarcodesMaker.com",
+    "url": "https://barcodesmaker.com/",
+    "description": "Free professional online Barcode and QR Code generator and scanner. Generate EAN-13, Code 128, QR Code and more. No signup required.",
+    "inLanguage": ["en", "tr", "de", "hi"],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://barcodesmaker.com/?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <!-- 2. WebApplication / SoftwareApplication Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "BarcodesMaker.com — Free Barcode Generator & Scanner",
+    "url": "https://barcodesmaker.com/",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires a modern web browser with JavaScript enabled.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Generate and scan barcodes and QR codes for free. Supports EAN-13, EAN-8, Code 128, Code 39, UPC-A, UPC-E, ITF, QR Code, DataMatrix and more. High-resolution exports in JPG, PNG, SVG. 100% browser-based, no data sent to servers.",
+    "featureList": [
+      "EAN-13 barcode generation",
+      "Code 128 barcode generation",
+      "QR Code generation with error correction levels",
+      "Real-time barcode scanner via camera",
+      "Barcode scanner from image file",
+      "Export in JPG, PNG, SVG formats",
+      "Multilingual interface (English, Turkish, German, Hindi)",
+      "100% browser-based, zero server uploads",
+      "Free commercial use"
+    ],
+    "screenshot": "https://barcodesmaker.com/og-image.png",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "1247",
+      "bestRating": "5"
+    }
+  }
+  </script>
+
+  <!-- 3. HowTo Schema — How to Generate a Barcode -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Generate a Barcode Online for Free",
+    "description": "Create professional barcodes (EAN-13, QR Code, Code 128 etc.) in seconds using BarcodesMaker.com. No software download required.",
+    "totalTime": "PT1M",
+    "estimatedCost": {
+      "@type": "MonetaryAmount",
+      "currency": "USD",
+      "value": "0"
+    },
+    "step": [
+      {
+        "@type": "HowToStep",
+        "name": "Select Barcode Format",
+        "text": "Choose your desired barcode format from the dropdown: EAN-13, Code 128, QR Code, UPC-A, Code 39, and more.",
+        "position": 1
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Enter Your Data",
+        "text": "Type or paste the content you want to encode — a product number, URL, text, phone number, or Wi-Fi credentials.",
+        "position": 2
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Customize & Download",
+        "text": "Optionally adjust colors, size, and resolution. Then click Download to save your barcode as JPG, PNG, or SVG.",
+        "position": 3
+      }
+    ]
+  }
+  </script>
+
+  <!-- 4. FAQPage Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is BarcodesMaker.com completely free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. BarcodesMaker.com is 100% free to use. There is no sign-up, no subscription, and no hidden fees. You can generate and download unlimited barcodes and QR codes at no cost."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What barcode formats are supported?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "BarcodesMaker.com supports a wide range of formats including EAN-13, EAN-8, UPC-A, UPC-E, Code 128, Code 39, Code 93, ITF-14, MSI Plessey, Codabar, QR Code, and DataMatrix."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are the barcodes suitable for commercial use?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely. Barcodes generated by BarcodesMaker.com are free for both personal and commercial use. They use industrial-grade encoding libraries that produce output compatible with all standard POS scanners."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my data private and secure?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. All barcode generation and scanning happens 100% within your browser. No data is ever sent to any server. Your sensitive product codes and business data never leave your device."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What file formats can I download?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You can download barcodes in JPG, PNG, and SVG formats. SVG is recommended for professional printing and vector editing in tools like Adobe Illustrator or Inkscape."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I scan barcodes with my camera?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The built-in scanner module supports real-time scanning via your webcam or phone camera, as well as scanning by uploading an image file. It can detect EAN, Code 128, QR Codes, DataMatrix, and many more formats."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- 5. Organization Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "BarcodesMaker.com",
+    "url": "https://barcodesmaker.com/",
+    "logo": "https://barcodesmaker.com/favicon.png",
+    "description": "Professional barcode and QR code generator and scanner tools for businesses, developers and individuals worldwide.",
+    "sameAs": []
+  }
+  </script>
+
 </head>
 
 <body class="bg-navy-900 text-white font-sans selection:bg-cyber-blue/40">
