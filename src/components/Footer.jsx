@@ -1,5 +1,6 @@
 import React from 'react';
 import { Barcode, Github, Twitter, Mail, ExternalLink, ShieldCheck, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export default function Footer({ onNav, onOpenLegal }) {
@@ -39,22 +40,23 @@ export default function Footer({ onNav, onOpenLegal }) {
                     <div className="space-y-8">
                         <h4 className="text-xs font-black uppercase tracking-[0.3em] text-cyber-blue">{t('footer.links')}</h4>
                         <nav className="flex flex-col gap-4">
-                            {['Generator', 'Scanner', 'About'].map((item) => (
-                                <button
-                                    key={item}
-                                    onClick={() => {
-                                        if (item === 'About') {
-                                            document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
-                                        } else {
-                                            onNav?.(item.toLowerCase());
-                                        }
-                                    }}
-                                    className="text-navy-600 dark:text-navy-400 font-bold hover:text-cyber-blue dark:hover:text-white transition-colors flex items-center gap-2 group w-fit"
-                                >
-                                    <span className="w-1.5 h-1.5 bg-navy-300 dark:bg-navy-700 rounded-full group-hover:bg-cyber-blue transition-colors"></span>
-                                    {t(`nav.${item.toLowerCase()}`)}
-                                </button>
-                            ))}
+                            {['Generator', 'Scanner', 'About'].map((item) => {
+                                const path = item === 'About' ? '/about' : item === 'Scanner' ? '/scanner' : '/';
+                                return (
+                                    <Link
+                                        key={item}
+                                        to={path}
+                                        className="text-navy-600 dark:text-navy-400 font-bold hover:text-cyber-blue dark:hover:text-white transition-colors flex items-center gap-2 group w-fit"
+                                    >
+                                        <span className="w-1.5 h-1.5 bg-navy-300 dark:bg-navy-700 rounded-full group-hover:bg-cyber-blue transition-colors"></span>
+                                        {t(`nav.${item.toLowerCase()}`)}
+                                    </Link>
+                                );
+                            })}
+                            <Link to="/guides" className="text-navy-600 dark:text-navy-400 font-bold hover:text-cyber-blue dark:hover:text-white transition-colors flex items-center gap-2 group w-fit">
+                                <span className="w-1.5 h-1.5 bg-navy-300 dark:bg-navy-700 rounded-full group-hover:bg-cyber-blue transition-colors"></span>
+                                {t('pages.guides')}
+                            </Link>
                         </nav>
                     </div>
 
@@ -62,24 +64,24 @@ export default function Footer({ onNav, onOpenLegal }) {
                     <div className="space-y-8">
                         <h4 className="text-xs font-black uppercase tracking-[0.3em] text-cyber-blue">{t('footer.legal')}</h4>
                         <nav className="flex flex-col gap-4">
-                            <button
-                                onClick={() => onOpenLegal?.('privacy')}
+                            <Link
+                                to="/privacy-policy"
                                 className="text-navy-600 dark:text-navy-400 font-bold hover:text-cyber-blue dark:hover:text-white transition-colors text-left flex items-center gap-2 group"
                             >
-                                <ShieldCheck size={16} /> Privacy Policy
-                            </button>
-                            <button
-                                onClick={() => onOpenLegal?.('terms')}
+                                <ShieldCheck size={16} /> {t('pages.privacy')}
+                            </Link>
+                            <Link
+                                to="/terms-of-service"
                                 className="text-navy-600 dark:text-navy-400 font-bold hover:text-cyber-blue dark:hover:text-white transition-colors text-left flex items-center gap-2 group"
                             >
-                                <ExternalLink size={16} /> Terms of Service
-                            </button>
-                            <a
-                                href="mailto:hello@barcodesmaker.com"
+                                <ExternalLink size={16} /> {t('pages.terms')}
+                            </Link>
+                            <Link
+                                to="/contact"
                                 className="text-navy-600 dark:text-navy-400 font-bold hover:text-cyber-blue dark:hover:text-white transition-colors text-left flex items-center gap-2 group"
                             >
-                                <Mail size={16} /> Contact Support
-                            </a>
+                                <Mail size={16} /> {t('pages.contact')}
+                            </Link>
                         </nav>
                     </div>
 

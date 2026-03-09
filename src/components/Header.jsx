@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Barcode, Sun, Moon, Globe, ChevronDown } from 'lucide-react';
+import { Menu, X, Barcode, Sun, Moon, Globe, ChevronDown, BookOpen } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const LANGUAGES = [
@@ -15,6 +16,17 @@ export default function Header({ theme, toggleTheme, onNav }) {
     const [scrolled, setScrolled] = useState(false);
     const [langOpen, setLangOpen] = useState(false);
     const langRef = useRef(null);
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const handleCreateNow = () => {
+        setIsOpen(false);
+        if (location.pathname === '/') {
+            document.getElementById('tool-section')?.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            navigate('/');
+        }
+    };
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -42,32 +54,35 @@ export default function Header({ theme, toggleTheme, onNav }) {
     return (
         <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-navy-900/80 backdrop-blur-xl border-b border-navy-200 dark:border-white/5 py-3' : 'bg-transparent py-5'}`}>
             <div className="container mx-auto px-6 flex items-center justify-between">
-                <a href="/" className="flex items-center gap-2 group transition-all duration-300">
+                <Link to="/" onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-2 group transition-all duration-300">
                     <div className="w-10 h-10 bg-gradient-to-br from-deep-blue to-cyber-blue rounded-xl flex items-center justify-center p-2 shadow-lg group-hover:scale-110 transition-transform">
                         <Barcode className="text-white w-full h-full" />
                     </div>
                     <span className="text-2xl font-bold tracking-tight text-navy-900 dark:text-white group-hover:text-cyber-blue transition-colors">
                         Barcodes<span className="text-cyber-blue group-hover:text-deep-blue">Maker</span>
                     </span>
-                </a>
+                </Link>
 
                 {/* Desktop Nav */}
                 <nav className="hidden md:flex items-center gap-8">
-                    <button
-                        onClick={() => onNav('generator')}
+                    <Link
+                        to="/"
                         className="text-navy-600 dark:text-navy-100 hover:text-cyber-blue dark:hover:text-cyber-blue font-medium transition-colors"
                     >
                         {t('nav.generator')}
-                    </button>
-                    <button
-                        onClick={() => onNav('scanner')}
+                    </Link>
+                    <Link
+                        to="/scanner"
                         className="text-navy-600 dark:text-navy-100 hover:text-cyber-blue dark:hover:text-cyber-blue font-medium transition-colors"
                     >
                         {t('nav.scanner')}
-                    </button>
-                    <a href="#about" className="text-navy-600 dark:text-navy-100 hover:text-cyber-blue dark:hover:text-cyber-blue font-medium transition-colors">
+                    </Link>
+                    <Link to="/about" className="text-navy-600 dark:text-navy-100 hover:text-cyber-blue dark:hover:text-cyber-blue font-medium transition-colors">
                         {t('nav.about')}
-                    </a>
+                    </Link>
+                    <Link to="/guides" className="text-navy-600 dark:text-navy-100 hover:text-cyber-blue dark:hover:text-cyber-blue font-medium transition-colors flex items-center gap-1.5">
+                        <BookOpen size={16} /> {t('pages.guides')}
+                    </Link>
 
                     {/* Controls */}
                     <div className="flex items-center gap-4 border-l border-navy-200 dark:border-navy-700 pl-6">
@@ -103,7 +118,7 @@ export default function Header({ theme, toggleTheme, onNav }) {
                         </button>
                     </div>
 
-                    <button onClick={() => onNav('generator')} className="btn-primary py-2 px-5 text-sm">{t('nav.create_now')}</button>
+                    <button onClick={handleCreateNow} className="btn-primary py-2 px-5 text-sm inline-flex items-center justify-center cursor-pointer">{t('nav.create_now')}</button>
                 </nav>
 
                 {/* Mobile Toggle */}
@@ -116,19 +131,24 @@ export default function Header({ theme, toggleTheme, onNav }) {
             {isOpen && (
                 <div className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-navy-900 backdrop-blur-2xl border-b border-navy-200 dark:border-white/5 p-6 animate-fadeIn shadow-2xl">
                     <nav className="flex flex-col gap-6">
-                        <button
-                            onClick={() => { onNav('generator'); setIsOpen(false); }}
-                            className="text-xl font-bold text-navy-900 dark:text-white hover:text-cyber-blue text-left"
+                        <Link
+                            to="/"
+                            onClick={() => setIsOpen(false)}
+                            className="text-xl font-bold text-navy-900 dark:text-white hover:text-cyber-blue text-left block"
                         >
                             {t('nav.generator')}
-                        </button>
-                        <button
-                            onClick={() => { onNav('scanner'); setIsOpen(false); }}
-                            className="text-xl font-bold text-navy-900 dark:text-white hover:text-cyber-blue text-left"
+                        </Link>
+                        <Link
+                            to="/scanner"
+                            onClick={() => setIsOpen(false)}
+                            className="text-xl font-bold text-navy-900 dark:text-white hover:text-cyber-blue text-left block"
                         >
                             {t('nav.scanner')}
-                        </button>
-                        <a href="#about" className="text-xl font-bold text-navy-900 dark:text-white hover:text-cyber-blue" onClick={() => setIsOpen(false)}>{t('nav.about')}</a>
+                        </Link>
+                        <Link to="/about" className="text-xl font-bold text-navy-900 dark:text-white hover:text-cyber-blue block" onClick={() => setIsOpen(false)}>{t('nav.about')}</Link>
+                        <Link to="/guides" className="text-xl font-bold text-navy-900 dark:text-white hover:text-cyber-blue block flex items-center gap-2" onClick={() => setIsOpen(false)}>
+                            <BookOpen size={20} className="text-cyber-blue" /> {t('pages.guides')}
+                        </Link>
 
                         <div className="h-px bg-navy-200 dark:bg-navy-800 my-2"></div>
 
@@ -155,7 +175,7 @@ export default function Header({ theme, toggleTheme, onNav }) {
                             </button>
                         </div>
 
-                        <button onClick={() => { onNav('generator'); setIsOpen(false); }} className="btn-primary w-full py-4">{t('nav.create_now')}</button>
+                        <button onClick={handleCreateNow} className="btn-primary w-full py-4 text-center inline-block cursor-pointer">{t('nav.create_now')}</button>
                     </nav>
                 </div>
             )}

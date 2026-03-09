@@ -11,6 +11,12 @@ const resources = {
                 "about": "About",
                 "create_now": "Create Now"
             },
+            "pages": {
+                "guides": "Guides & FAQ",
+                "privacy": "Privacy Policy",
+                "terms": "Terms of Service",
+                "contact": "Contact Support"
+            },
             "hero": {
                 "badge": "Professional Grade Tools",
                 "title_main": "Generate & Scan",
@@ -40,6 +46,8 @@ const resources = {
                 "height": "Bar Height",
                 "export_format": "Export Format",
                 "download": "Download",
+                "download_zip": "Download ZIP",
+                "zipping": "ZIPPING...",
                 "copy": "Copy Text",
                 "copied": "Copied",
                 "engine_ready": "Engine Ready",
@@ -167,6 +175,12 @@ const resources = {
                 "about": "Hakkımızda",
                 "create_now": "Hemen Başla"
             },
+            "pages": {
+                "guides": "Rehberler ve SSS",
+                "privacy": "Gizlilik Politikası",
+                "terms": "Kullanım Şartları",
+                "contact": "İletişim & Destek"
+            },
             "hero": {
                 "badge": "Profesyonel Araçlar",
                 "title_main": "Barkod Oluştur",
@@ -196,6 +210,8 @@ const resources = {
                 "height": "Barkod Yüksekliği",
                 "export_format": "Format Seç",
                 "download": "İndir",
+                "download_zip": "İndir ZIP",
+                "zipping": "ZIP OLUŞTURULUYOR...",
                 "copy": "Metni Kopyala",
                 "copied": "Kopyalandı",
                 "engine_ready": "Motor Hazır",
@@ -323,6 +339,12 @@ const resources = {
                 "about": "Über uns",
                 "create_now": "Jetzt erstellen"
             },
+            "pages": {
+                "guides": "Anleitungen & FAQ",
+                "privacy": "Datenschutzrichtlinie",
+                "terms": "Nutzungsbedingungen",
+                "contact": "Support kontaktieren"
+            },
             "hero": {
                 "badge": "Professionelle Werkzeuge",
                 "title_main": "Barcodes generieren",
@@ -352,6 +374,8 @@ const resources = {
                 "height": "Balkenhöhe",
                 "export_format": "Exportformat",
                 "download": "Herunterladen",
+                "download_zip": "ZIP Herunterladen",
+                "zipping": "WIRD GEZIPPT...",
                 "copy": "Text kopieren",
                 "copied": "Kopiert",
                 "engine_ready": "Engine bereit",
@@ -479,6 +503,12 @@ const resources = {
                 "about": "हमारे बारे में",
                 "create_now": "अभी बनाएं"
             },
+            "pages": {
+                "guides": "मार्गदर्शिका और सामान्य प्रश्न",
+                "privacy": "गोपनीयता नीति",
+                "terms": "सेवा की शर्तें",
+                "contact": "संपर्क करें"
+            },
             "hero": {
                 "badge": "पेशेवर उपकरण",
                 "title_main": "बारकोड बनाएं",
@@ -508,6 +538,8 @@ const resources = {
                 "height": "बार ऊंचाई",
                 "export_format": "निर्यात प्रारूप",
                 "download": "डाउनलोड",
+                "download_zip": "ZIP डाउनलोड करें",
+                "zipping": "ज़िप किया जा रहा है...",
                 "copy": "टेक्स्ट कॉपी करें",
                 "copied": "कॉपी किया",
                 "engine_ready": "इंजन तैयार",

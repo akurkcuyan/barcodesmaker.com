@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import bwipjs from 'bwip-js';
 import { jsPDF } from "jspdf";
-import { Download, Copy, RefreshCw, RotateCcw, Layers, Settings, ChevronDown, Palette, Maximize, AlertCircle, Check, FileText, FileImage, FileCode, FileBox } from 'lucide-react';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+import { Download, Copy, RefreshCw, RotateCcw, Settings, ChevronDown, Maximize, AlertCircle, Check, FileText, FileImage, FileCode, FileBox, Archive } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const formats = [
@@ -37,36 +39,16 @@ const downloadFormats = [
     { id: 'eps', label: 'EPS', icon: <FileBox size={18} />, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
 ];
 
-export default function BarcodeGenerator() {
-    const { t } = useTranslation();
-    const [data, setData] = useState('1234567890');
-    const [format, setFormat] = useState('code128');
-    const [fgColor, setFgColor] = useState('000000');
-    const [bgColor, setBgColor] = useState('ffffff');
-    const [scale, setScale] = useState(3);
-    const [height, setHeight] = useState(15);
-    const [showMore, setShowMore] = useState(false);
-    const [error, setError] = useState('');
-    const [isCopying, setIsCopying] = useState(false);
-    const [selectedDownloadFormat, setSelectedDownloadFormat] = useState('png');
-
+// Helper Component for rendering individual barcodes
+const BarcodeItem = ({ text, format, fgColor, bgColor, scale, height, onError, index, registerCanvas }) => {
     const canvasRef = useRef(null);
 
     useEffect(() => {
-        generateBarcode();
-    }, [data, format, fgColor, bgColor, scale, height]);
-
-    const generateBarcode = () => {
-        if (!data) {
-            setError(t('barcode.no_data'));
-            return;
-        }
-        setError('');
-
+        if (!text || !canvasRef.current) return;
         try {
             bwipjs.toCanvas(canvasRef.current, {
                 bcid: format,
-                text: data,
+                text: text,
                 scale: scale,
                 height: height,
                 includetext: true,
@@ -74,37 +56,109 @@ export default function BarcodeGenerator() {
                 barcolor: fgColor,
                 backgroundcolor: bgColor,
             });
+            registerCanvas(index, canvasRef.current, text);
+            onError(index, null);
         } catch (err) {
-            setError(`${t('barcode.invalid_data')} ${format.toUpperCase()}`);
+            onError(index, err.message);
             const ctx = canvasRef.current.getContext('2d');
             ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+            registerCanvas(index, null, text);
+        }
+    }, [text, format, fgColor, bgColor, scale, height, index]);
+
+    return (
+        <div className="flex flex-col items-center gap-2 p-4 bg-white/5 border border-navy-700 rounded-xl relative">
+            <div className="absolute top-2 left-2 text-[10px] text-navy-500 font-mono">#{index + 1}</div>
+            <div className="bg-white p-4 rounded-lg shadow-sm w-full flex justify-center min-h-[100px]" style={{ backgroundColor: `#${bgColor}` }}>
+                <canvas ref={canvasRef} className="max-w-full h-auto drop-shadow-sm"></canvas>
+            </div>
+            <div className="text-[10px] text-navy-400 font-mono truncate max-w-full px-2">{text}</div>
+        </div>
+    );
+};
+
+
+export default function BarcodeGenerator() {
+    const { t } = useTranslation();
+    const [data, setData] = useState("1234567890\n12232112121\n12121212121");
+    const [format, setFormat] = useState('code128');
+    const [fgColor, setFgColor] = useState('000000');
+    const [bgColor, setBgColor] = useState('ffffff');
+    const [scale, setScale] = useState(3);
+    const [height, setHeight] = useState(15);
+    const [showMore, setShowMore] = useState(false);
+    const [errors, setErrors] = useState({});
+    const [isCopying, setIsCopying] = useState(false);
+    const [selectedDownloadFormat, setSelectedDownloadFormat] = useState('png');
+    const [isGeneratingZip, setIsGeneratingZip] = useState(false);
+
+    // Keep track of all generated canvases for ZIP building
+    const canvasRegistry = useRef({});
+
+    const registerCanvas = (index, canvas, text) => {
+        canvasRegistry.current[index] = { canvas, text };
+    };
+
+    const handleItemError = (index, err) => {
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            if (err) {
+                newErrors[index] = err;
+            } else {
+                delete newErrors[index];
+            }
+            return newErrors;
+        });
+    };
+
+    // Filter out empty lines
+    const dataLines = data.split('\n').filter(line => line.trim() !== '');
+
+    const handleDownload = async () => {
+        if (dataLines.length === 0) return;
+
+        if (selectedDownloadFormat === 'eps') {
+            alert(t('barcode.vector_alert'));
+            setSelectedDownloadFormat('svg'); // Auto-switch for the user
+            return;
+        }
+
+        const isBatch = dataLines.length > 1;
+
+        if (isBatch) {
+            await downloadBatch();
+        } else {
+            downloadSingle(0);
         }
     };
 
-    const handleDownload = () => {
-        if (!canvasRef.current) return;
-        const fileName = `BarcodesMaker-${format}-${data}`;
+    const downloadSingle = (index) => {
+        const item = canvasRegistry.current[index];
+        if (!item || !item.canvas) return;
+
+        const textToSave = item.text.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const fileName = `BarcodesMaker-${format}-${textToSave}`;
 
         if (selectedDownloadFormat === 'png') {
             const link = document.createElement('a');
             link.download = `${fileName}.png`;
-            link.href = canvasRef.current.toDataURL('image/png', 1.0);
+            link.href = item.canvas.toDataURL('image/png', 1.0);
             link.click();
         } else if (selectedDownloadFormat === 'pdf') {
-            const imgData = canvasRef.current.toDataURL('image/png', 1.0);
+            const imgData = item.canvas.toDataURL('image/png', 1.0);
             const pdf = new jsPDF({
-                orientation: canvasRef.current.width > canvasRef.current.height ? 'landscape' : 'portrait',
+                orientation: item.canvas.width > item.canvas.height ? 'landscape' : 'portrait',
                 unit: 'px',
-                format: [canvasRef.current.width + 40, canvasRef.current.height + 40]
+                format: [item.canvas.width + 40, item.canvas.height + 40]
             });
             pdf.setProperties({ title: fileName });
-            pdf.addImage(imgData, 'PNG', 20, 20, canvasRef.current.width, canvasRef.current.height);
+            pdf.addImage(imgData, 'PNG', 20, 20, item.canvas.width, item.canvas.height);
             pdf.save(`${fileName}.pdf`);
         } else if (selectedDownloadFormat === 'svg') {
             try {
                 const svg = bwipjs.toSVG({
                     bcid: format,
-                    text: data,
+                    text: item.text,
                     scale: scale,
                     height: height,
                     includetext: true,
@@ -118,13 +172,74 @@ export default function BarcodeGenerator() {
                 a.href = url;
                 a.download = `${fileName}.svg`;
                 a.click();
+                URL.revokeObjectURL(url);
             } catch (err) {
                 console.error('SVG Generation Error:', err);
             }
-        } else if (selectedDownloadFormat === 'eps') {
-            alert(t('barcode.vector_alert'));
-            setSelectedDownloadFormat('svg');
         }
+    };
+
+    const downloadBatch = async () => {
+        setIsGeneratingZip(true);
+        const zip = new JSZip();
+        const folderName = `barcodes-${format}`;
+        const folder = zip.folder(folderName);
+
+        let validCount = 0;
+
+        for (let i = 0; i < dataLines.length; i++) {
+            const item = canvasRegistry.current[i];
+            // Skip invalid barcodes
+            if (!item || !item.canvas || errors[i]) continue;
+
+            const safeText = item.text.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const fileName = `barcode-${i + 1}-${safeText}`;
+
+            if (selectedDownloadFormat === 'png') {
+                const dataUrl = item.canvas.toDataURL('image/png', 1.0);
+                const base64Data = dataUrl.split(',')[1];
+                folder.file(`${fileName}.png`, base64Data, { base64: true });
+                validCount++;
+            } else if (selectedDownloadFormat === 'pdf') {
+                const imgData = item.canvas.toDataURL('image/png', 1.0);
+                const pdf = new jsPDF({
+                    orientation: item.canvas.width > item.canvas.height ? 'landscape' : 'portrait',
+                    unit: 'px',
+                    format: [item.canvas.width + 40, item.canvas.height + 40]
+                });
+                pdf.addImage(imgData, 'PNG', 20, 20, item.canvas.width, item.canvas.height);
+                const pdfData = pdf.output('blob');
+                folder.file(`${fileName}.pdf`, pdfData);
+                validCount++;
+            } else if (selectedDownloadFormat === 'svg') {
+                try {
+                    const svg = bwipjs.toSVG({
+                        bcid: format,
+                        text: item.text,
+                        scale: scale,
+                        height: height,
+                        includetext: true,
+                        textxalign: 'center',
+                        barcolor: fgColor,
+                        backgroundcolor: bgColor,
+                    });
+                    folder.file(`${fileName}.svg`, svg);
+                    validCount++;
+                } catch (err) {
+                    console.error('SVG generation failed for index', i, err);
+                }
+            }
+        }
+
+        if (validCount > 0) {
+            try {
+                const content = await zip.generateAsync({ type: 'blob' });
+                saveAs(content, `BarcodesMaker-${format}-batch.zip`);
+            } catch (err) {
+                console.error("Error generating ZIP:", err);
+            }
+        }
+        setIsGeneratingZip(false);
     };
 
     const copyToClipboard = () => {
@@ -132,6 +247,8 @@ export default function BarcodeGenerator() {
         setIsCopying(true);
         setTimeout(() => setIsCopying(false), 2000);
     };
+
+    const hasErrors = Object.keys(errors).length > 0;
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
@@ -162,13 +279,18 @@ export default function BarcodeGenerator() {
                         </div>
 
                         <div className="space-y-4">
-                            <label className="text-sm font-black text-navy-400 uppercase tracking-widest block">{t('barcode.contents')}</label>
+                            <label className="text-sm font-black text-navy-400 uppercase tracking-widest block flex justify-between items-center">
+                                <span>{t('barcode.contents')}</span>
+                                <span className="text-[10px] text-cyber-blue lowercase tracking-normal bg-cyber-blue/10 px-2 py-0.5 rounded">
+                                    multi-line batch supported
+                                </span>
+                            </label>
                             <div className="relative group">
                                 <textarea
-                                    rows="3"
+                                    rows="4"
                                     value={data}
                                     onChange={(e) => setData(e.target.value)}
-                                    className="input-field resize-none py-4 pr-12 group-focus:border-cyber-blue"
+                                    className="input-field resize-y py-4 pr-12 group-focus:border-cyber-blue leading-relaxed font-mono"
                                     placeholder={t('barcode.placeholder')}
                                 />
                                 <button
@@ -180,14 +302,14 @@ export default function BarcodeGenerator() {
                                 </button>
                             </div>
                             <div className="flex justify-between items-start mt-2">
-                                {error ? (
+                                {hasErrors ? (
                                     <p className="text-red-500 text-xs font-bold animate-pulse flex items-center gap-2">
                                         <AlertCircle size={14} />
-                                        {error}
+                                        {Object.keys(errors).length} invalid lines for {format.toUpperCase()}
                                     </p>
                                 ) : (
                                     <p className="text-navy-500 text-xs font-semibold flex items-center gap-2">
-                                        <Check size={14} className="text-green-500" /> {t('barcode.format_ready')}
+                                        <Check size={14} className="text-green-500" /> {t('barcode.format_ready')} ({dataLines.length} total)
                                     </p>
                                 )}
                                 <p className="text-[10px] text-navy-400 font-bold uppercase tracking-widest bg-navy-100 dark:bg-navy-900/50 px-2 py-1 rounded-md border border-navy-200 dark:border-navy-700">
@@ -259,31 +381,50 @@ export default function BarcodeGenerator() {
             </div>
 
             {/* Preview Side */}
-            <div className="lg:sticky lg:top-32 space-y-8 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
-                <div className="relative group perspective">
+            <div className="lg:sticky lg:top-32 space-y-8 animate-fadeIn flex flex-col" style={{ animationDelay: '0.2s', maxHeight: 'calc(100vh - 150px)' }}>
+                <div className="relative group perspective flex-1 flex flex-col min-h-0">
                     <div className="absolute inset-0 bg-cyber-blue/5 blur-[120px] -z-10 rounded-full group-hover:bg-deep-blue/15 transition-all duration-1000"></div>
 
-                    <div
-                        style={{ backgroundColor: `#${bgColor}` }}
-                        className="p-16 md:p-24 rounded-[40px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] flex items-center justify-center min-h-[350px] transition-all duration-700 bg-white border border-white/5 overflow-hidden"
-                    >
-                        <canvas ref={canvasRef} className="max-w-full h-auto drop-shadow-sm"></canvas>
+                    <div className="bg-navy-800/40 p-6 rounded-[30px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] border border-white/5 flex-1 overflow-y-auto custom-scrollbar relative">
+                        {dataLines.length === 0 ? (
+                            <div className="h-full flex flex-col items-center justify-center text-navy-500 min-h-[250px]">
+                                <AlertCircle size={32} className="mb-2 opacity-50" />
+                                <span className="text-sm font-semibold">{t('barcode.no_data', 'No valid data provided')}</span>
+                            </div>
+                        ) : (
+                            <div className={`grid gap-4 ${dataLines.length > 1 ? 'grid-cols-2 sm:grid-cols-2' : 'grid-cols-1'}`}>
+                                {dataLines.map((line, index) => (
+                                    <BarcodeItem
+                                        key={`${format}-${line}-${index}-${scale}-${height}-${fgColor}-${bgColor}`}
+                                        text={line}
+                                        format={format}
+                                        fgColor={fgColor}
+                                        bgColor={bgColor}
+                                        scale={scale}
+                                        height={height}
+                                        index={index}
+                                        registerCanvas={registerCanvas}
+                                        onError={handleItemError}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
 
-                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-6 bg-navy-800 border border-navy-700 py-4 px-8 rounded-2xl shadow-2xl backdrop-blur-xl opacity-0 group-hover:opacity-100 group-hover:bottom-0 transition-all duration-500">
-                        <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                            <span className="text-[10px] font-black text-white uppercase tracking-widest">{format.toUpperCase()} {t('barcode.engine_ready')}</span>
+                    {/* Status Badge */}
+                    {dataLines.length > 0 && (
+                        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-6 bg-navy-800 border border-navy-700 py-3 px-6 rounded-2xl shadow-2xl backdrop-blur-xl transition-all duration-500 z-10">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-2 h-2 rounded-full animate-pulse ${hasErrors ? 'bg-red-500' : 'bg-green-500'}`}></div>
+                                <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                                    {dataLines.length > 1 ? `BATCH: ${dataLines.length - Object.keys(errors).length}/${dataLines.length} READY` : `${format.toUpperCase()} READY`}
+                                </span>
+                            </div>
                         </div>
-                        <div className="w-px h-4 bg-navy-600"></div>
-                        <button onClick={copyToClipboard} className="flex items-center gap-2 hover:text-cyber-blue transition-colors group/btn">
-                            {isCopying ? <Check size={14} className="text-green-500" /> : <Copy size={14} className="group-hover/btn:scale-110" />}
-                            <span className="text-[10px] font-black uppercase tracking-widest">{isCopying ? t('barcode.copied') : t('barcode.copy')}</span>
-                        </button>
-                    </div>
+                    )}
                 </div>
 
-                <div className="pt-8 space-y-6">
+                <div className="pt-8 space-y-6 shrink-0">
                     <div className="space-y-4">
                         <label className="text-[10px] font-black text-navy-400 uppercase tracking-[0.2em] block text-center">{t('barcode.export_format')}</label>
                         <div className="grid grid-cols-4 gap-3">
@@ -291,7 +432,7 @@ export default function BarcodeGenerator() {
                                 <button
                                     key={f.id}
                                     onClick={() => setSelectedDownloadFormat(f.id)}
-                                    className={`p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all duration-300 border-2 ${selectedDownloadFormat === f.id ? 'border-cyber-blue bg-cyber-blue/10 scale-105 shadow-lg shadow-cyber-blue/10' : 'border-navy-800/50 bg-navy-900/40 hover:border-navy-600'}`}
+                                    className={`p-3 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all duration-300 border-2 ${selectedDownloadFormat === f.id ? 'border-cyber-blue bg-cyber-blue/10 scale-105 shadow-lg shadow-cyber-blue/10' : 'border-navy-800/50 bg-navy-900/40 hover:border-navy-600'}`}
                                 >
                                     <div className={`${f.color}`}>{f.icon}</div>
                                     <span className="text-[10px] font-black uppercase tracking-tighter text-white">{f.label}</span>
@@ -300,12 +441,27 @@ export default function BarcodeGenerator() {
                         </div>
                     </div>
 
-                    <button onClick={handleDownload} className="btn-primary w-full py-5 text-xl relative group overflow-hidden">
+                    <button
+                        onClick={handleDownload}
+                        disabled={isGeneratingZip || dataLines.length === 0}
+                        className={`btn-primary w-full py-4 text-xl relative group overflow-hidden ${(isGeneratingZip || dataLines.length === 0) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
                         <span className="relative z-10 flex items-center justify-center gap-3">
-                            <Download size={24} className="group-hover:translate-y-1 transition-transform" />
-                            {t('barcode.download')} {selectedDownloadFormat.toUpperCase()}
+                            {isGeneratingZip ? (
+                                <RefreshCw size={24} className="animate-spin" />
+                            ) : dataLines.length > 1 ? (
+                                <Archive size={24} className="group-hover:scale-110 transition-transform" />
+                            ) : (
+                                <Download size={24} className="group-hover:translate-y-1 transition-transform" />
+                            )}
+
+                            {isGeneratingZip
+                                ? t('barcode.zipping')
+                                : dataLines.length > 1
+                                    ? `${t('barcode.download_zip')} (${selectedDownloadFormat.toUpperCase()})`
+                                    : `${t('barcode.download')} ${selectedDownloadFormat.toUpperCase()}`
+                            }
                         </span>
-                        <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform"></div>
                     </button>
                 </div>
             </div>
